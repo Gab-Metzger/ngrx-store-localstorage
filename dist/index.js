@@ -9,6 +9,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
+var merge_1 = require("lodash/merge");
 var INIT_ACTION = '@ngrx/store/init';
 var UPDATE_ACTION = '@ngrx/store/update-reducers';
 var detectDate = /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/;
@@ -193,36 +194,23 @@ exports.localStorageSync = function (config) { return function (reducer) {
         ? exports.rehydrateApplicationState(stateKeys, config.storage, config.storageKeySerializer, config.restoreDates)
         : undefined;
     return function (state, action) {
-        if (state === void 0) { state = rehydratedState; }
-        /*
-             Handle case where state is rehydrated AND initial state is supplied.
-             Any additional state supplied will override rehydrated state for the given key.
-             */
+        var nextState;
+        // If state arrives undefined, we need to let it through the supplied reducer
+        // in order to get a complete state as defined by user
+        if (action.type === INIT_ACTION && !state) {
+            nextState = reducer(state, action);
+        }
+        else {
+            nextState = __assign({}, state);
+        }
         if ((action.type === INIT_ACTION || action.type === UPDATE_ACTION) &&
             rehydratedState) {
-            if (state) {
-                Object.keys(state).forEach(function (key) {
-                    var _a;
-                    if (state[key] instanceof Array &&
-                        rehydratedState[key] instanceof Array) {
-                        state[key] = __assign({}, state, (_a = {}, _a[key] = rehydratedState[key], _a));
-                    }
-                    else if (typeof state[key] === 'object' &&
-                        typeof rehydratedState[key] === 'object') {
-                        var slice = Object.assign({}, state[key], rehydratedState[key]);
-                        state = __assign({}, state, { key: slice });
-                    }
-                    else {
-                        state[key] = rehydratedState[key];
-                    }
-                });
-            }
-            else {
-                state = Object.assign({}, state, rehydratedState);
-            }
+            nextState = merge_1.merge({}, nextState, rehydratedState);
         }
-        var nextState = reducer(state, action);
-        exports.syncStateUpdate(nextState, stateKeys, config.storage, config.storageKeySerializer, config.removeOnUndefined, config.syncCondition);
+        nextState = reducer(nextState, action);
+        if (action.type !== INIT_ACTION) {
+            exports.syncStateUpdate(nextState, stateKeys, config.storage, config.storageKeySerializer, config.removeOnUndefined, config.syncCondition);
+        }
         return nextState;
     };
 }; };
