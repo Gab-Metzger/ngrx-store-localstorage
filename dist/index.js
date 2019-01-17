@@ -9,7 +9,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
-var merge_1 = require("lodash/merge");
+var merge = require("lodash/merge");
 var INIT_ACTION = '@ngrx/store/init';
 var UPDATE_ACTION = '@ngrx/store/update-reducers';
 var detectDate = /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/;
@@ -205,7 +205,7 @@ exports.localStorageSync = function (config) { return function (reducer) {
         }
         if ((action.type === INIT_ACTION || action.type === UPDATE_ACTION) &&
             rehydratedState) {
-            nextState = merge_1.merge({}, nextState, rehydratedState);
+            nextState = merge({}, nextState, rehydratedState);
         }
         nextState = reducer(nextState, action);
         if (action.type !== INIT_ACTION) {

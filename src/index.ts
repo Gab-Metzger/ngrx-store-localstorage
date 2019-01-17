@@ -1,4 +1,4 @@
-import { merge } from 'lodash/merge';
+import * as merge from 'lodash/merge';
 
 const INIT_ACTION = '@ngrx/store/init';
 const UPDATE_ACTION = '@ngrx/store/update-reducers';
